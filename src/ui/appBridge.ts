@@ -1,10 +1,15 @@
 import { App } from "@modelcontextprotocol/ext-apps";
 import type { InvoiceInput, InvoiceOutput } from "../shared/types.js";
+import { invoiceInputSchema } from "../shared/validation.js";
 
 type ToolResult = {
   structuredContent?: unknown;
   content?: Array<{ type: string; text?: string }>;
   isError?: boolean;
+  _meta?: {
+    input?: unknown;
+    [key: string]: unknown;
+  };
 };
 
 type ToolInput = {
@@ -86,4 +91,9 @@ export function asInvoiceOutput(value: unknown): InvoiceOutput | null {
   }
 
   return null;
+}
+
+export function asInvoiceInput(value: unknown): InvoiceInput | null {
+  const parsed = invoiceInputSchema.safeParse(value);
+  return parsed.success ? parsed.data : null;
 }

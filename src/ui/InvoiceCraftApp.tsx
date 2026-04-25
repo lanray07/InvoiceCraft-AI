@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import {
+  asInvoiceInput,
   asInvoiceOutput,
   callInvoiceTool,
   connectBridge,
@@ -69,6 +70,10 @@ export function InvoiceCraftApp() {
       const nextInvoice = asInvoiceOutput(result.structuredContent);
       if (nextInvoice) {
         setInvoice(nextInvoice);
+        const nextInput = asInvoiceInput(result._meta?.input);
+        if (nextInput) {
+          setInput(nextInput);
+        }
         setError(null);
       }
     });
@@ -82,6 +87,15 @@ export function InvoiceCraftApp() {
   }, []);
 
   const previewBalance = useMemo(() => {
+    if (
+      invoice &&
+      input.totalPrice === 0 &&
+      input.depositPaid === 0 &&
+      !input.dueDate
+    ) {
+      return invoice.remainingBalance;
+    }
+
     const total = Number.isFinite(input.totalPrice) ? input.totalPrice : 0;
     const paid = Number.isFinite(input.depositPaid) ? input.depositPaid : 0;
     return Math.max(0, Math.round((total - paid) * 100) / 100);

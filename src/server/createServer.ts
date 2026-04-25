@@ -13,7 +13,7 @@ import {
   regenerateInvoice
 } from "../shared/invoiceEngine.js";
 import type { InvoiceInput } from "../shared/types.js";
-import { invoiceInputShape } from "../shared/validation.js";
+import { invoiceInputSchema, invoiceInputShape } from "../shared/validation.js";
 
 const RESOURCE_URI = "ui://invoicecraft-ai/invoicecraft.html";
 const DIST_HTML = path.join(process.cwd(), "dist", "mcp-app.html");
@@ -65,15 +65,19 @@ function runInvoiceTool(
   operation: "generate" | "regenerate"
 ) {
   try {
+    const parsedInput = invoiceInputSchema.parse(input);
     const invoice =
-      operation === "generate" ? generateInvoice(input) : regenerateInvoice(input);
+      operation === "generate"
+        ? generateInvoice(parsedInput)
+        : regenerateInvoice(parsedInput);
     return {
       structuredContent: invoice as unknown as Record<string, unknown>,
       content: successContent(
         `${operation === "generate" ? "Generated" : "Regenerated"} ${invoice.invoiceId} for ${invoice.clientReadyMessage.split("\n")[2]?.replace("Service: ", "") ?? "the requested service"}. Remaining balance: ${invoice.remainingBalance.toFixed(2)} ${invoice.currency}.`
       ),
       _meta: {
-        generatedAt: new Date().toISOString()
+        generatedAt: new Date().toISOString(),
+        input: parsedInput
       }
     };
   } catch (error) {
