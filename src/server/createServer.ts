@@ -13,56 +13,32 @@ import {
   regenerateInvoice
 } from "../shared/invoiceEngine.js";
 import type { InvoiceInput } from "../shared/types.js";
-import { invoiceInputSchema } from "../shared/validation.js";
+import { invoiceInputShape } from "../shared/validation.js";
 
 const RESOURCE_URI = "ui://invoicecraft-ai/invoicecraft.html";
 const DIST_HTML = path.join(process.cwd(), "dist", "mcp-app.html");
 
-const invoiceOutputSchema = {
-  type: "object",
-  properties: {
-    invoiceId: { type: "string" },
-    template: { type: "string" },
-    invoiceSummary: { type: "string" },
-    lineItems: {
-      type: "array",
-      items: {
-        type: "object",
-        properties: {
-          description: { type: "string" },
-          quantity: { type: "number" },
-          unitPrice: { type: "number" },
-          amount: { type: "number" }
-        },
-        required: ["description", "quantity", "unitPrice", "amount"],
-        additionalProperties: false
-      }
-    },
-    totalAmount: { type: "number" },
-    amountPaid: { type: "number" },
-    remainingBalance: { type: "number" },
-    dueDate: { type: "string" },
-    paymentInstructions: { type: "string" },
-    lateFeeNote: { type: "string" },
-    clientReadyMessage: { type: "string" },
-    currency: { type: "string" }
-  },
-  required: [
-    "invoiceId",
-    "template",
-    "invoiceSummary",
-    "lineItems",
-    "totalAmount",
-    "amountPaid",
-    "remainingBalance",
-    "dueDate",
-    "paymentInstructions",
-    "lateFeeNote",
-    "clientReadyMessage",
-    "currency"
-  ],
-  additionalProperties: false
-} as const;
+const invoiceOutputShape = {
+  invoiceId: z.string(),
+  template: z.string(),
+  invoiceSummary: z.string(),
+  lineItems: z.array(
+    z.object({
+      description: z.string(),
+      quantity: z.number(),
+      unitPrice: z.number(),
+      amount: z.number()
+    })
+  ),
+  totalAmount: z.number(),
+  amountPaid: z.number(),
+  remainingBalance: z.number(),
+  dueDate: z.string(),
+  paymentInstructions: z.string(),
+  lateFeeNote: z.string(),
+  clientReadyMessage: z.string(),
+  currency: z.string()
+};
 
 function successContent(text: string) {
   return [{ type: "text" as const, text }];
@@ -118,8 +94,8 @@ export function createServer(): McpServer {
       title: "Generate Invoice",
       description:
         "Generate a clean professional invoice with deterministic calculations and a client-ready message.",
-      inputSchema: invoiceInputSchema,
-      outputSchema: invoiceOutputSchema,
+      inputSchema: invoiceInputShape,
+      outputSchema: invoiceOutputShape,
       annotations: {
         readOnlyHint: true,
         destructiveHint: false,
@@ -144,8 +120,8 @@ export function createServer(): McpServer {
       title: "Regenerate Invoice",
       description:
         "Regenerate the invoice from the same visible inputs. Calculations remain deterministic.",
-      inputSchema: invoiceInputSchema,
-      outputSchema: invoiceOutputSchema,
+      inputSchema: invoiceInputShape,
+      outputSchema: invoiceOutputShape,
       annotations: {
         readOnlyHint: true,
         destructiveHint: false,
@@ -170,7 +146,7 @@ export function createServer(): McpServer {
       title: "Explain Invoice",
       description:
         "Explain the invoice calculation, validation rules, template behavior, and assumptions.",
-      inputSchema: invoiceInputSchema,
+      inputSchema: invoiceInputShape,
       annotations: {
         readOnlyHint: true,
         destructiveHint: false,
