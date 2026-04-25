@@ -1,0 +1,40 @@
+{
+  "name": "invoicecraft-ai",
+  "version": "1.0.0",
+  "description": "A ChatGPT app for generating clean, professional invoices for service businesses.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "tsc --noEmit && vite build",
+    "dev": "concurrently \"vite build --watch --mode development\" \"tsx watch src/server/main.ts\"",
+    "start": "tsx src/server/main.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/ext-apps": "^1.7.0",
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@vitejs/plugin-react": "^6.0.1",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "zod": "^4.2.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.0.3",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "concurrently": "^9.2.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "vite": "^8.0.10",
+    "vite-plugin-singlefile": "^2.3.0",
+    "vitest": "^4.1.5"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
