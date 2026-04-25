@@ -11,10 +11,14 @@ export type PaymentMethod =
   | "stripe";
 
 export interface InvoiceInput {
+  businessName?: string;
+  businessContact?: string;
   clientName: string;
   serviceDescription: string;
   totalPrice: number;
   depositPaid: number;
+  discountAmount?: number;
+  taxRate?: number;
   dueDate: string;
   paymentMethod: PaymentMethod;
   currency: CurrencyCode;
@@ -33,6 +37,10 @@ export interface InvoiceOutput {
   template: TemplateId;
   invoiceSummary: string;
   lineItems: LineItem[];
+  subtotalAmount: number;
+  discountAmount: number;
+  taxRate: number;
+  taxAmount: number;
   totalAmount: number;
   amountPaid: number;
   remainingBalance: number;

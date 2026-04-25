@@ -30,6 +30,10 @@ const invoiceOutputShape = {
       amount: z.number()
     })
   ),
+  subtotalAmount: z.number(),
+  discountAmount: z.number(),
+  taxRate: z.number(),
+  taxAmount: z.number(),
   totalAmount: z.number(),
   amountPaid: z.number(),
   remainingBalance: z.number(),

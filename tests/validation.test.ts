@@ -17,7 +17,19 @@ describe("invoice validation", () => {
   it("rejects deposits greater than the total", () => {
     expect(() =>
       generateInvoice({ ...input, totalPrice: 100, depositPaid: 101 })
-    ).toThrow("Deposit paid cannot exceed the total price");
+    ).toThrow("Deposit paid cannot exceed the final invoice total");
+  });
+
+  it("rejects discounts greater than the total", () => {
+    expect(() =>
+      generateInvoice({ ...input, totalPrice: 100, discountAmount: 101 })
+    ).toThrow("Discount cannot exceed the total price");
+  });
+
+  it("rejects tax rates greater than 100", () => {
+    expect(() => generateInvoice({ ...input, taxRate: 101 })).toThrow(
+      "Tax rate cannot exceed 100"
+    );
   });
 
   it("rejects invalid calendar dates", () => {

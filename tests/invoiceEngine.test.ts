@@ -55,7 +55,47 @@ describe("invoice engine", () => {
   it("explains calculations and assumptions without hidden logic", () => {
     const explanation = explainInvoice(baseInput);
 
-    expect(explanation.calculation).toContain("$2,500.00 - $750.00 = $1,750.00");
-    expect(explanation.assumptions).toContain("No taxes, discounts, or hidden fees are added.");
+    expect(explanation.calculation).toContain(
+      "$2,500.00 - $0.00 + $0.00 - $750.00 = $1,750.00"
+    );
+    expect(explanation.assumptions).toContain(
+      "Taxes and discounts are only added when explicitly provided."
+    );
+  });
+
+  it("applies explicit discounts and tax before subtracting deposits", () => {
+    const invoice = generateInvoice({
+      ...baseInput,
+      totalPrice: 1000,
+      discountAmount: 100,
+      taxRate: 10,
+      depositPaid: 250
+    });
+
+    expect(invoice.subtotalAmount).toBe(1000);
+    expect(invoice.discountAmount).toBe(100);
+    expect(invoice.taxAmount).toBe(90);
+    expect(invoice.totalAmount).toBe(990);
+    expect(invoice.remainingBalance).toBe(740);
+    expect(invoice.lineItems).toEqual([
+      {
+        description: "Freelance services: Brand identity design",
+        quantity: 1,
+        unitPrice: 1000,
+        amount: 1000
+      },
+      {
+        description: "Discount",
+        quantity: 1,
+        unitPrice: -100,
+        amount: -100
+      },
+      {
+        description: "Tax (10%)",
+        quantity: 1,
+        unitPrice: 90,
+        amount: 90
+      }
+    ]);
   });
 });

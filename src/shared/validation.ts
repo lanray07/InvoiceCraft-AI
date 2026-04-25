@@ -16,6 +16,8 @@ export const templateSchema = z.enum([
 ]);
 
 export const invoiceInputShape = {
+  businessName: z.string().trim().max(120).optional().default(""),
+  businessContact: z.string().trim().max(240).optional().default(""),
   clientName: z.string().trim().min(1, "Client name is required").max(120),
   serviceDescription: z
     .string()
@@ -30,6 +32,19 @@ export const invoiceInputShape = {
     .number()
     .finite()
     .nonnegative("Deposit paid cannot be negative"),
+  discountAmount: z.coerce
+    .number()
+    .finite()
+    .nonnegative("Discount cannot be negative")
+    .optional()
+    .default(0),
+  taxRate: z.coerce
+    .number()
+    .finite()
+    .min(0, "Tax rate cannot be negative")
+    .max(100, "Tax rate cannot exceed 100")
+    .optional()
+    .default(0),
   dueDate: z
     .string()
     .trim()
@@ -42,11 +57,24 @@ export const invoiceInputShape = {
 export const invoiceInputSchema = z
   .object(invoiceInputShape)
   .superRefine((value, ctx) => {
-    if (value.depositPaid > value.totalPrice) {
+    if (value.discountAmount > value.totalPrice) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["discountAmount"],
+        message: "Discount cannot exceed the total price"
+      });
+    }
+
+    const taxableCents =
+      Math.round(value.totalPrice * 100) - Math.round(value.discountAmount * 100);
+    const taxCents = Math.round(taxableCents * (value.taxRate / 100));
+    const totalWithTax = (taxableCents + taxCents) / 100;
+
+    if (value.depositPaid > totalWithTax) {
       ctx.addIssue({
         code: "custom",
         path: ["depositPaid"],
-        message: "Deposit paid cannot exceed the total price"
+        message: "Deposit paid cannot exceed the final invoice total"
       });
     }
 

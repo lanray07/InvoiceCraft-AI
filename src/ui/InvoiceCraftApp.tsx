@@ -4,6 +4,8 @@ import {
   asInvoiceOutput,
   callInvoiceTool,
   connectBridge,
+  copyText,
+  downloadInvoicePdf,
   onToolInput,
   onToolResult
 } from "./appBridge.js";
@@ -19,10 +21,14 @@ import type {
 import { invoiceInputSchema } from "../shared/validation.js";
 
 const defaultInput: InvoiceInput = {
+  businessName: "",
+  businessContact: "",
   clientName: "",
   serviceDescription: "",
   totalPrice: 0,
   depositPaid: 0,
+  discountAmount: 0,
+  taxRate: 0,
   dueDate: "",
   paymentMethod: "bank-transfer",
   currency: "USD",
@@ -55,6 +61,7 @@ export function InvoiceCraftApp() {
   const [input, setInput] = useState<InvoiceInput>(defaultInput);
   const [invoice, setInvoice] = useState<InvoiceOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
@@ -63,6 +70,7 @@ export function InvoiceCraftApp() {
       if (parsed.success) {
         setInput(parsed.data);
         setError(null);
+        setNotice(null);
       }
     });
 
@@ -75,6 +83,7 @@ export function InvoiceCraftApp() {
           setInput(nextInput);
         }
         setError(null);
+        setNotice(null);
       }
     });
 
@@ -98,8 +107,14 @@ export function InvoiceCraftApp() {
 
     const total = Number.isFinite(input.totalPrice) ? input.totalPrice : 0;
     const paid = Number.isFinite(input.depositPaid) ? input.depositPaid : 0;
-    return Math.max(0, Math.round((total - paid) * 100) / 100);
-  }, [input.depositPaid, input.totalPrice]);
+    const discount = Number.isFinite(input.discountAmount ?? 0)
+      ? input.discountAmount ?? 0
+      : 0;
+    const taxRate = Number.isFinite(input.taxRate ?? 0) ? input.taxRate ?? 0 : 0;
+    const taxable = Math.max(0, Math.round((total - discount) * 100));
+    const tax = Math.round(taxable * (taxRate / 100));
+    return Math.max(0, Math.round((taxable + tax - Math.round(paid * 100))) / 100);
+  }, [input.depositPaid, input.discountAmount, input.taxRate, input.totalPrice]);
 
   const update = <K extends keyof InvoiceInput>(key: K, value: InvoiceInput[K]) => {
     setInput((current) => ({ ...current, [key]: value }));
@@ -108,6 +123,7 @@ export function InvoiceCraftApp() {
   const handleGenerate = async () => {
     setIsGenerating(true);
     setError(null);
+    setNotice(null);
 
     const parsed = invoiceInputSchema.safeParse(input);
     if (!parsed.success) {
@@ -124,6 +140,32 @@ export function InvoiceCraftApp() {
       setInvoice(generateInvoice(parsed.data));
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const handleCopy = async () => {
+    if (!invoice) {
+      return;
+    }
+
+    try {
+      await copyText(invoice.clientReadyMessage);
+      setNotice("Invoice message copied.");
+    } catch {
+      setError("Copy failed. Select the message text and copy it manually.");
+    }
+  };
+
+  const handlePdf = async () => {
+    if (!invoice) {
+      return;
+    }
+
+    try {
+      await downloadInvoicePdf(invoice, input);
+      setNotice("PDF export started.");
+    } catch {
+      setError("PDF export failed. Try again from a fresh app view.");
     }
   };
 
@@ -168,6 +210,24 @@ export function InvoiceCraftApp() {
           </div>
 
           <label>
+            <span>Business name</span>
+            <input
+              value={input.businessName ?? ""}
+              onChange={(event) => update("businessName", event.target.value)}
+              placeholder="Your Business LLC"
+            />
+          </label>
+
+          <label>
+            <span>Business contact</span>
+            <input
+              value={input.businessContact ?? ""}
+              onChange={(event) => update("businessContact", event.target.value)}
+              placeholder="billing@example.com"
+            />
+          </label>
+
+          <label>
             <span>Client name</span>
             <input
               value={input.clientName}
@@ -203,6 +263,27 @@ export function InvoiceCraftApp() {
                 value={input.depositPaid || ""}
                 onChange={(event) => update("depositPaid", toNumber(event.target.value))}
                 placeholder="500"
+              />
+            </label>
+          </div>
+
+          <div className="field-grid">
+            <label>
+              <span>Discount</span>
+              <input
+                inputMode="decimal"
+                value={input.discountAmount || ""}
+                onChange={(event) => update("discountAmount", toNumber(event.target.value))}
+                placeholder="0"
+              />
+            </label>
+            <label>
+              <span>Tax rate %</span>
+              <input
+                inputMode="decimal"
+                value={input.taxRate || ""}
+                onChange={(event) => update("taxRate", toNumber(event.target.value))}
+                placeholder="0"
               />
             </label>
           </div>
@@ -253,6 +334,7 @@ export function InvoiceCraftApp() {
           </div>
 
           {error ? <p className="error">{error}</p> : null}
+          {notice ? <p className="notice">{notice}</p> : null}
 
           <div className="actions">
             <button type="button" onClick={handleGenerate} disabled={isGenerating}>
@@ -276,6 +358,18 @@ export function InvoiceCraftApp() {
               </div>
 
               <div className="breakdown">
+                <div>
+                  <span>Subtotal</span>
+                  <strong>{formatMoney(invoice.subtotalAmount, invoice.currency)}</strong>
+                </div>
+                <div>
+                  <span>Discount</span>
+                  <strong>-{formatMoney(invoice.discountAmount, invoice.currency)}</strong>
+                </div>
+                <div>
+                  <span>Tax</span>
+                  <strong>{formatMoney(invoice.taxAmount, invoice.currency)}</strong>
+                </div>
                 <div>
                   <span>Total</span>
                   <strong>{formatMoney(invoice.totalAmount, invoice.currency)}</strong>
@@ -312,6 +406,15 @@ export function InvoiceCraftApp() {
                 <span>Client-ready invoice message</span>
                 <textarea readOnly value={invoice.clientReadyMessage} rows={10} />
               </label>
+
+              <div className="result-actions">
+                <button type="button" onClick={handleCopy}>
+                  Copy message
+                </button>
+                <button type="button" onClick={handlePdf}>
+                  Download PDF
+                </button>
+              </div>
             </>
           ) : (
             <div className="empty-state">

@@ -191,7 +191,8 @@ textarea:focus {
   color: #203329;
 }
 
-.error {
+.error,
+.notice {
   margin: 0;
   border: 1px solid #e6b1a7;
   border-radius: 7px;
@@ -199,6 +200,12 @@ textarea:focus {
   color: #9b2d1c;
   padding: 10px;
   font-size: 0.86rem;
+}
+
+.notice {
+  border-color: #b8d9c7;
+  background: #f1fbf5;
+  color: #246b53;
 }
 
 .result-header {
@@ -265,6 +272,28 @@ textarea:focus {
   line-height: 1.45;
 }
 
+.result-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.result-actions button {
+  min-height: 40px;
+  border: 0;
+  border-radius: 7px;
+  background: #e9eee9;
+  color: #203329;
+  cursor: pointer;
+  font-weight: 750;
+}
+
+.result-actions button:first-child {
+  background: #246b53;
+  color: #ffffff;
+}
+
 .empty-state {
   display: grid;
   min-height: 420px;
@@ -283,7 +312,8 @@ textarea:focus {
 
   .workspace,
   .field-grid,
-  .breakdown {
+  .breakdown,
+  .result-actions {
     grid-template-columns: 1fr;
   }
 
