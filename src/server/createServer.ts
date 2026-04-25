@@ -15,7 +15,7 @@ import {
 import type { InvoiceInput } from "../shared/types.js";
 import { invoiceInputSchema, invoiceInputShape } from "../shared/validation.js";
 
-const RESOURCE_URI = "ui://invoicecraft-ai/invoicecraft.html";
+const RESOURCE_URI = "ui://invoicecraft-ai/invoicecraft-v2.html";
 const DIST_HTML = path.join(process.cwd(), "dist", "mcp-app.html");
 
 const invoiceOutputShape = {
