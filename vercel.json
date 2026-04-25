@@ -7,6 +7,10 @@
   },
   "rewrites": [
     {
+      "source": "/mcp-v2",
+      "destination": "/api/mcp"
+    },
+    {
       "source": "/mcp",
       "destination": "/api/mcp"
     }
