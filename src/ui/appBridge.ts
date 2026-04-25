@@ -7,12 +7,25 @@ type ToolResult = {
   isError?: boolean;
 };
 
+type ToolInput = {
+  arguments?: Record<string, unknown>;
+};
+
 const app = new App({ name: "InvoiceCraft AI", version: "1.0.0" });
 let connected = false;
-const listeners = new Set<(result: ToolResult) => void>();
+let latestToolInput: ToolInput | null = null;
+let latestToolResult: ToolResult | null = null;
+const resultListeners = new Set<(result: ToolResult) => void>();
+const inputListeners = new Set<(input: ToolInput) => void>();
+
+app.ontoolinput = (input: ToolInput) => {
+  latestToolInput = input;
+  inputListeners.forEach((listener) => listener(input));
+};
 
 app.ontoolresult = (result: ToolResult) => {
-  listeners.forEach((listener) => listener(result));
+  latestToolResult = result;
+  resultListeners.forEach((listener) => listener(result));
 };
 
 export function connectBridge(): void {
@@ -29,9 +42,22 @@ export function connectBridge(): void {
 }
 
 export function onToolResult(listener: (result: ToolResult) => void): () => void {
-  listeners.add(listener);
+  resultListeners.add(listener);
+  if (latestToolResult) {
+    listener(latestToolResult);
+  }
   return () => {
-    listeners.delete(listener);
+    resultListeners.delete(listener);
+  };
+}
+
+export function onToolInput(listener: (input: ToolInput) => void): () => void {
+  inputListeners.add(listener);
+  if (latestToolInput) {
+    listener(latestToolInput);
+  }
+  return () => {
+    inputListeners.delete(listener);
   };
 }
 

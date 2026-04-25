@@ -3,6 +3,7 @@ import {
   asInvoiceOutput,
   callInvoiceTool,
   connectBridge,
+  onToolInput,
   onToolResult
 } from "./appBridge.js";
 import { generateInvoice } from "../shared/invoiceEngine.js";
@@ -56,14 +57,28 @@ export function InvoiceCraftApp() {
   const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
-    connectBridge();
-    return onToolResult((result) => {
+    const cleanupInput = onToolInput((toolInput) => {
+      const parsed = invoiceInputSchema.safeParse(toolInput.arguments ?? {});
+      if (parsed.success) {
+        setInput(parsed.data);
+        setError(null);
+      }
+    });
+
+    const cleanupResult = onToolResult((result) => {
       const nextInvoice = asInvoiceOutput(result.structuredContent);
       if (nextInvoice) {
         setInvoice(nextInvoice);
         setError(null);
       }
     });
+
+    connectBridge();
+
+    return () => {
+      cleanupInput();
+      cleanupResult();
+    };
   }, []);
 
   const previewBalance = useMemo(() => {
