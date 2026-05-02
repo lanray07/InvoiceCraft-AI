@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>InvoiceCraft AI</title>
+    <meta
+      name="description"
+      content="InvoiceCraft AI helps service businesses generate professional invoices with clear balances, due dates, payment instructions, and client-ready messages."
+    />
+    <style>
+      :root {
+        color: #172126;
+        background: #f6f7f4;
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+      }
+
+      main {
+        min-height: 100vh;
+        padding: 56px 22px;
+      }
+
+      .wrap {
+        max-width: 920px;
+        margin: 0 auto;
+      }
+
+      .hero {
+        padding: 44px 0 34px;
+      }
+
+      .eyebrow {
+        margin: 0 0 12px;
+        color: #246b53;
+        font-size: 0.82rem;
+        font-weight: 800;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        max-width: 760px;
+        margin: 0;
+        color: #172126;
+        font-size: clamp(2.4rem, 8vw, 4.6rem);
+        line-height: 1;
+        letter-spacing: 0;
+      }
+
+      .lede {
+        max-width: 680px;
+        margin: 22px 0 0;
+        color: #4b5f56;
+        font-size: 1.18rem;
+        line-height: 1.55;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 28px;
+      }
+
+      a {
+        color: #246b53;
+      }
+
+      .button {
+        display: inline-flex;
+        min-height: 44px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 7px;
+        background: #246b53;
+        color: white;
+        font-weight: 800;
+        padding: 0 18px;
+        text-decoration: none;
+      }
+
+      .button.secondary {
+        background: #e7ede8;
+        color: #172126;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 18px;
+      }
+
+      .card {
+        min-height: 140px;
+        border: 1px solid #d8ded8;
+        border-radius: 8px;
+        background: #ffffff;
+        padding: 18px;
+      }
+
+      .card h2 {
+        margin: 0 0 10px;
+        font-size: 1.05rem;
+        letter-spacing: 0;
+      }
+
+      .card p,
+      footer {
+        color: #53665d;
+        line-height: 1.5;
+      }
+
+      footer {
+        margin-top: 40px;
+        font-size: 0.95rem;
+      }
+
+      @media (max-width: 760px) {
+        main {
+          padding-top: 28px;
+        }
+
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="wrap">
+        <section class="hero">
+          <p class="eyebrow">InvoiceCraft AI</p>
+          <h1>Professional invoices for service businesses.</h1>
+          <p class="lede">
+            Generate structured invoices with line items, deposits, discounts,
+            taxes, due dates, payment instructions, late-fee notes, and a
+            client-ready invoice message inside ChatGPT.
+          </p>
+          <div class="actions">
+            <a class="button" href="https://chatgpt.com">Use in ChatGPT</a>
+            <a class="button secondary" href="/privacy.html">Privacy policy</a>
+            <a class="button secondary" href="/terms.html">Terms</a>
+          </div>
+        </section>
+
+        <section class="grid" aria-label="Features">
+          <article class="card">
+            <h2>Clear totals</h2>
+            <p>
+              Deterministic calculations for subtotal, discount, tax, paid
+              amount, and remaining balance.
+            </p>
+          </article>
+          <article class="card">
+            <h2>Client-ready output</h2>
+            <p>
+              Creates a polished invoice summary, payment instructions, and
+              message you can send to a client.
+            </p>
+          </article>
+          <article class="card">
+            <h2>Service templates</h2>
+            <p>
+              Includes templates for contractors, freelancers, and service
+              businesses.
+            </p>
+          </article>
+        </section>
+
+        <footer>
+          Support: <a href="mailto:banksmi@mail.com">banksmi@mail.com</a>
+        </footer>
+      </div>
+    </main>
+  </body>
+</html>
