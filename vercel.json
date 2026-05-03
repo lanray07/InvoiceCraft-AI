@@ -7,6 +7,14 @@
   },
   "rewrites": [
     {
+      "source": "/sse",
+      "destination": "/api/sse"
+    },
+    {
+      "source": "/messages",
+      "destination": "/api/sse"
+    },
+    {
       "source": "/mcp-v2",
       "destination": "/api/mcp"
     },
